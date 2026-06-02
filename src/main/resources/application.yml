@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: auth
+
+auth0:
+  domain: test-domain
+  audience: test-audience
+  client-id: test-client-id
+  client-secret: test-client-secret

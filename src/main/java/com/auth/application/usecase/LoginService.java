@@ -2,21 +2,87 @@ package com.auth.application.usecase;
 
 import com.auth.application.dto.LoginRequest;
 import com.auth.application.dto.LoginResponse;
+import com.auth.domain.exception.AuthException;
+import com.auth.domain.exception.UserNotFoundException;
+import com.auth.domain.model.User;
 import com.auth.domain.ports.input.LoginUseCase;
-import com.auth.domain.ports.output.AuthenticationProviderPort;
+import com.auth.domain.ports.output.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class LoginService implements LoginUseCase {
+public class LoginService
+        implements LoginUseCase {
 
-    private final AuthenticationProviderPort authenticationProviderPort;
+    private final UserRepositoryPort userRepositoryPort;
+
+    private final PasswordEncoderPort passwordEncoderPort;
+
+    private final MfaProviderPort mfaProviderPort;
+
+    private final JwtProviderPort jwtProviderPort;
 
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(
+            LoginRequest request
+    ) {
 
-        return authenticationProviderPort.authenticate(request);
+        User user =
+                userRepositoryPort
+                        .findByEmail(
+                                request.getEmail()
+                        )
+                        .orElseThrow(
+                                () ->
+                                        new UserNotFoundException(
+                                                "User not found"
+                                        )
+                        );
 
+        boolean validPassword =
+                passwordEncoderPort.matches(
+                        request.getPassword(),
+                        user.getPassword()
+                );
+
+        if (!validPassword) {
+
+            throw new AuthException(
+                    "Invalid credentials"
+            );
+        }
+
+        if (Boolean.TRUE.equals(
+                user.getMfaEnabled()
+        )) {
+
+            String mfaToken =
+                    mfaProviderPort
+                            .generateMfaToken(
+                                    user.getEmail()
+                            );
+
+            return LoginResponse.builder()
+                    .mfaRequired(true)
+                    .mfaToken(mfaToken)
+                    .build();
+        }
+
+        return LoginResponse.builder()
+                .accessToken(
+                        jwtProviderPort
+                                .generateAccessToken(
+                                        user.getEmail()
+                                )
+                )
+                .refreshToken(
+                        jwtProviderPort
+                                .generateRefreshToken(
+                                        user.getEmail()
+                                )
+                )
+                .mfaRequired(false)
+                .build();
     }
 }

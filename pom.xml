@@ -49,6 +49,12 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.warrenstrange</groupId>
+            <artifactId>googleauth</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
         <!-- WebClient -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

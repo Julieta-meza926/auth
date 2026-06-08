@@ -3,9 +3,9 @@ package com.auth.application.dto;
 import lombok.Data;
 
 @Data
-public class MfaVerifyRequest {
+public class RegisterOtpRequest {
 
     private String email;
 
-    private String otpCode;
+    private String password;
 }

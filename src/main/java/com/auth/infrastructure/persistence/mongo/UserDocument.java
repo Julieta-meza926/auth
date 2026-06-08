@@ -18,4 +18,7 @@ public class UserDocument {
     private String password;
 
     private Boolean mfaEnabled;
+
+    private String mfaSecret;
+
 }

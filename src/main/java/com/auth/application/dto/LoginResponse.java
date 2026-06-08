@@ -13,6 +13,5 @@ public class LoginResponse {
 
     private Boolean mfaRequired;
 
-    private String mfaToken;
-
+    private String email;
 }

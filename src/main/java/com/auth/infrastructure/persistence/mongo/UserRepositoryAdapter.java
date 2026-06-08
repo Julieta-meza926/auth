@@ -28,6 +28,29 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
                 .name(document.getName())
                 .password(document.getPassword())
                 .mfaEnabled(document.getMfaEnabled())
+                .mfaSecret(document.getMfaSecret())
                 .build();
+    }
+    private UserDocument toDocument(User user) {
+
+        UserDocument document = new UserDocument();
+
+        document.setId(user.getId());
+        document.setEmail(user.getEmail());
+        document.setName(user.getName());
+        document.setPassword(user.getPassword());
+        document.setMfaEnabled(user.getMfaEnabled());
+        document.setMfaSecret(user.getMfaSecret());
+
+        return document;
+    }
+    @Override
+    public User save(User user) {
+
+        UserDocument document = toDocument(user);
+
+        UserDocument saved = repository.save(document);
+
+        return toDomain(saved);
     }
 }

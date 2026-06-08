@@ -5,40 +5,28 @@ import com.auth.application.dto.LoginResponse;
 import com.auth.domain.exception.AuthException;
 import com.auth.domain.exception.UserNotFoundException;
 import com.auth.domain.model.User;
-import com.auth.domain.ports.input.LoginUseCase;
-import com.auth.domain.ports.output.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.auth.domain.ports.input.LoginUseCase;
+import com.auth.domain.ports.output.JwtProviderPort;
+import com.auth.domain.ports.output.PasswordEncoderPort;
+import com.auth.domain.ports.output.UserRepositoryPort;
 
 @Service
 @RequiredArgsConstructor
-public class LoginService
-        implements LoginUseCase {
+public class LoginService implements LoginUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
-
     private final PasswordEncoderPort passwordEncoderPort;
-
-    private final MfaProviderPort mfaProviderPort;
-
     private final JwtProviderPort jwtProviderPort;
 
     @Override
-    public LoginResponse login(
-            LoginRequest request
-    ) {
+    public LoginResponse login(LoginRequest request) {
 
-        User user =
-                userRepositoryPort
-                        .findByEmail(
-                                request.getEmail()
-                        )
-                        .orElseThrow(
-                                () ->
-                                        new UserNotFoundException(
-                                                "User not found"
-                                        )
-                        );
+        User user = userRepositoryPort
+                .findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
 
         boolean validPassword =
                 passwordEncoderPort.matches(
@@ -47,40 +35,27 @@ public class LoginService
                 );
 
         if (!validPassword) {
-
-            throw new AuthException(
-                    "Invalid credentials"
-            );
+            throw new AuthException("Invalid credentials");
         }
 
-        if (Boolean.TRUE.equals(
-                user.getMfaEnabled()
-        )) {
-
-            String mfaToken =
-                    mfaProviderPort
-                            .generateMfaToken(
-                                    user.getEmail()
-                            );
+        if (Boolean.TRUE.equals(user.getMfaEnabled())) {
 
             return LoginResponse.builder()
                     .mfaRequired(true)
-                    .mfaToken(mfaToken)
+                    .email(user.getEmail())
                     .build();
         }
 
         return LoginResponse.builder()
                 .accessToken(
-                        jwtProviderPort
-                                .generateAccessToken(
-                                        user.getEmail()
-                                )
+                        jwtProviderPort.generateAccessToken(
+                                user.getEmail()
+                        )
                 )
                 .refreshToken(
-                        jwtProviderPort
-                                .generateRefreshToken(
-                                        user.getEmail()
-                                )
+                        jwtProviderPort.generateRefreshToken(
+                                user.getEmail()
+                        )
                 )
                 .mfaRequired(false)
                 .build();

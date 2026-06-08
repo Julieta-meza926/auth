@@ -8,28 +8,38 @@ import com.auth.domain.ports.output.JwtProviderPort;
 import com.auth.domain.ports.output.MfaProviderPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.auth.domain.exception.UserNotFoundException;
+import com.auth.domain.model.User;
+import com.auth.domain.ports.output.UserRepositoryPort;
 
 @Service
 @RequiredArgsConstructor
-public class VerifyMfaService
-        implements VerifyMfaUseCase {
+public class VerifyMfaService implements VerifyMfaUseCase {
 
     private final MfaProviderPort mfaProviderPort;
     private final JwtProviderPort jwtProviderPort;
+    private final UserRepositoryPort userRepositoryPort;
 
     @Override
     public MfaVerifyResponse verify(
             MfaVerifyRequest request
     ) {
 
+        User user =
+                userRepositoryPort
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() ->
+                                new UserNotFoundException(
+                                        "User not found"
+                                ));
+
         boolean valid =
                 mfaProviderPort.validateOtp(
-                        request.getMfaToken(),
+                        user.getMfaSecret(),
                         request.getOtpCode()
                 );
 
         if (!valid) {
-
             throw new InvalidOtpException(
                     "Invalid OTP"
             );
@@ -38,12 +48,12 @@ public class VerifyMfaService
         return MfaVerifyResponse.builder()
                 .accessToken(
                         jwtProviderPort.generateAccessToken(
-                                request.getMfaToken()
+                                user.getEmail()
                         )
                 )
                 .refreshToken(
                         jwtProviderPort.generateRefreshToken(
-                                request.getMfaToken()
+                                user.getEmail()
                         )
                 )
                 .build();

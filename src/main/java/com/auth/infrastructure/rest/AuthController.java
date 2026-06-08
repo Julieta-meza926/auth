@@ -1,6 +1,7 @@
 package com.auth.infrastructure.rest;
 
 import com.auth.application.dto.*;
+import com.auth.application.usecase.RegisterOtpUseCase;
 import com.auth.domain.ports.input.LoginUseCase;
 import com.auth.domain.ports.input.VerifyMfaUseCase;
 import com.auth.infrastructure.persistence.mongo.UserDocument;
@@ -8,6 +9,7 @@ import com.auth.infrastructure.persistence.mongo.UserRepository;
 import com.auth.infrastructure.security.BCryptPasswordAdapter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +21,9 @@ public class AuthController {
 
     private final LoginUseCase loginUseCase;
     private final VerifyMfaUseCase verifyMfaUseCase;
-    private final UserRepository userRepository;
     private final BCryptPasswordAdapter passwordAdapter;
     private final UserRepository repository;
+    private final RegisterOtpUseCase registerOtpUseCase;
 
     @GetMapping("/users")
     public List<UserDocument> users() {
@@ -47,7 +49,7 @@ public class AuthController {
                 request.getMfaEnabled()
         );
 
-        return userRepository.save(user);
+        return repository.save(user);
     }
 
     @PostMapping("/login")
@@ -67,5 +69,16 @@ public class AuthController {
                 request
         );
 
+    }
+
+    @PostMapping("/register-otp")
+    public ResponseEntity<RegisterOtpResponse> registerOtp(
+            @RequestBody RegisterOtpRequest request) {
+
+        String secret = registerOtpUseCase.execute(request);
+
+        return ResponseEntity.ok(
+                new RegisterOtpResponse(secret)
+        );
     }
 }

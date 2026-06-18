@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/test/users")
-    public UserDocument createUser(
+    public UserDocument createUser(@Valid
             @RequestBody CreateUserRequest request) {
 
         UserDocument user = new UserDocument();
@@ -72,7 +72,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-otp")
-    public ResponseEntity<RegisterOtpResponse> registerOtp(
+    public ResponseEntity<RegisterOtpResponse> registerOtp(@Valid
             @RequestBody RegisterOtpRequest request) {
 
         String secret = registerOtpUseCase.execute(request);

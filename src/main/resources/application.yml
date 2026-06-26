@@ -2,8 +2,13 @@ spring:
   application:
     name: auth
 
-auth0:
-  domain: test-domain
-  audience: test-audience
-  client-id: test-client-id
-  client-secret: test-client-secret
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@localhost:27017/auth?authSource=admin
+
+server:
+  port: 8081
+
+jwt:
+  secret:   "my-super-secret-key-my-super-secret-key-123456"
+  expiration: 86400000

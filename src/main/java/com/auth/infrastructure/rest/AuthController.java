@@ -81,4 +81,17 @@ public class AuthController {
                 new RegisterOtpResponse(secret)
         );
     }
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(
+            @PathVariable String id
+    ) {
+
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        repository.deleteById(id);
+
+        return ResponseEntity.ok("User deleted successfully");
+    }
 }

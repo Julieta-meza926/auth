@@ -110,7 +110,7 @@ public class GlobalExceptionHandler {
                 .body(
                         ErrorResponse.builder()
                                 .code("INTERNAL_SERVER_ERROR")
-                                .message("Unexpected error occurred")
+                                .message(ex.getMessage())
                                 .timestamp(LocalDateTime.now())
                                 .build()
                 );

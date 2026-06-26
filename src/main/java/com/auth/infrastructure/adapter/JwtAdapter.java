@@ -6,14 +6,13 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Component
 public class JwtAdapter
         implements JwtProviderPort {
 
     private static final String SECRET =
-            "my-super-secret-key-my-super-secret-key";
+            "my-super-secret-key-my-super-secret-key-123456";
 
     @Override
     public String generateAccessToken(

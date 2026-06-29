@@ -1,5 +1,6 @@
 package com.auth.infrastructure.persistence.mongo;
 
+import com.auth.domain.model.Role;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -22,5 +23,7 @@ public class UserDocument {
     private Boolean mfaEnabled;
 
     private String mfaSecret;
+
+    private Role role;
 
 }

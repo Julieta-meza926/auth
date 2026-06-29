@@ -48,7 +48,7 @@ public class VerifyMfaService implements VerifyMfaUseCase {
         return MfaVerifyResponse.builder()
                 .accessToken(
                         jwtProviderPort.generateAccessToken(
-                                user.getEmail()
+                                user
                         )
                 )
                 .refreshToken(

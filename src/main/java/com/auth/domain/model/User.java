@@ -19,5 +19,7 @@ public class User {
 
     private String mfaSecret;
 
+    private Role role;
+
 
 }

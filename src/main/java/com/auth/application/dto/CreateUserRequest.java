@@ -1,5 +1,6 @@
 package com.auth.application.dto;
 
+import com.auth.domain.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -14,4 +15,5 @@ public class CreateUserRequest {
     @NotBlank(message = "Password is required")
     private String password;
     private Boolean mfaEnabled;
+    private Role role;
 }

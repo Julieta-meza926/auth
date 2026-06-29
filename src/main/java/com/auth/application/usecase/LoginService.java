@@ -48,9 +48,7 @@ public class LoginService implements LoginUseCase {
 
         return LoginResponse.builder()
                 .accessToken(
-                        jwtProviderPort.generateAccessToken(
-                                user.getEmail()
-                        )
+                        jwtProviderPort.generateAccessToken(user)
                 )
                 .refreshToken(
                         jwtProviderPort.generateRefreshToken(

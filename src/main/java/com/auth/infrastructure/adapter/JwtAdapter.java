@@ -1,26 +1,31 @@
 package com.auth.infrastructure.adapter;
 
+import com.auth.domain.model.User;
 import com.auth.domain.ports.output.JwtProviderPort;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Component
-public class JwtAdapter
-        implements JwtProviderPort {
+public class JwtAdapter implements JwtProviderPort {
 
-    private static final String SECRET =
-            "my-super-secret-key-my-super-secret-key-123456";
+    private final String secret;
+
+    public JwtAdapter(
+            @Value("${jwt.secret}") String secret
+    ) {
+        this.secret = secret;
+    }
 
     @Override
-    public String generateAccessToken(
-            String subject
-    ) {
+    public String generateAccessToken(User user) {
 
         return Jwts.builder()
-                .subject(subject)
+                .subject(user.getEmail())
+                .claim("role", user.getRole().name())
                 .issuedAt(new Date())
                 .expiration(
                         new Date(
@@ -30,16 +35,14 @@ public class JwtAdapter
                 )
                 .signWith(
                         Keys.hmacShaKeyFor(
-                                SECRET.getBytes()
+                                secret.getBytes()
                         )
                 )
                 .compact();
     }
 
     @Override
-    public String generateRefreshToken(
-            String subject
-    ) {
+    public String generateRefreshToken(String subject) {
 
         return Jwts.builder()
                 .subject(subject)
@@ -52,7 +55,7 @@ public class JwtAdapter
                 )
                 .signWith(
                         Keys.hmacShaKeyFor(
-                                SECRET.getBytes()
+                                secret.getBytes()
                         )
                 )
                 .compact();
